@@ -1,0 +1,527 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>读《关键对话》· 读书分享</title>
+
+<!-- =====================================================================
+  读书分享 PPT · 《关键对话：如何高效能沟通》
+  · 每页 = 一个 <section class="slide">，复制/移动即可，进度全自动。
+  · 内容页 data-chapter="第一章 · xxx" → 左上角自动显示章节。
+  · 逐个进场的元素加 class="r"（自动错峰）。换页 data-anim="fade|slide|zoom|up"。
+  · 换配色/字号：只改 :root。换图：把 .ph 换成 <img class="fig" src="...">。
+  · ← → / 空格 翻页；点右侧或空白=下一页，点左1/4=上一页；F 全屏。
+  ===================================================================== -->
+
+<style>
+/* ================= 主题变量 ================= */
+:root{
+  /* 书卷配色：澄澈的青蓝为主，暖金点缀，米白纸底；正例青绿、反例暖红，语义清晰 */
+  --bg:        #0f1420;   /* 全屏背景（仅非 16:9 时露出的边框，近黑蓝） */
+  --surface:   #faf7f0;   /* 纸底（暖米白） */
+  --surface-2: #fffefb;   /* 卡片白 */
+  --ink:       #262b33;
+  --ink-soft:  #7a828e;
+  --line:      #e8e2d6;
+  --brand:     #3a75c4;   /* 主题色 澄澈青蓝 */
+  --brand-2:   #6aa0e0;   /* 亮蓝 */
+  --gold:      #e0a63c;   /* 暖金点缀 */
+  --good:      #3f9d6d;   /* 正例 青绿 */
+  --good-bg:   #e9f4ee;
+  --good-bd:   #bfe1cd;
+  --bad:       #d0674c;   /* 反例 暖红（仅“别这么说”用） */
+  --bad-bg:    #fbeee8;
+  --bad-bd:    #f2cebf;
+
+  --pad:       92px;
+  --fs-title:  54px;
+  --fs-body:   30px;
+  --fs-small:  24px;
+  --radius:    20px;
+  --font: "PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  --serif: Georgia,"Songti SC","STSong",serif;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  font-family:var(--font); color:var(--ink); overflow:hidden;
+}
+
+#stage{position:fixed; inset:0;}
+#deck{
+  position:absolute; top:50%; left:50%; width:1280px; height:720px;
+  transform:translate(-50%,-50%); transform-origin:center center;
+}
+
+/* ================= 幻灯片通用 ================= */
+.slide{
+  position:absolute; inset:0; background:var(--surface);
+  padding:var(--pad);
+  display:flex; flex-direction:column; overflow:hidden;
+  opacity:0; visibility:hidden; pointer-events:none;
+}
+.slide.active{opacity:1; visibility:visible; pointer-events:auto;}
+
+.chapter-tag{
+  position:absolute; top:40px; left:var(--pad);
+  font-size:19px; letter-spacing:.05em; color:var(--brand);
+  font-weight:700; display:flex; align-items:center; gap:11px; z-index:2;
+}
+.chapter-tag::before{ content:""; width:24px; height:3px; border-radius:2px; background:var(--brand); }
+.slide::after{
+  content:attr(data-foot); position:absolute; top:40px; right:var(--pad);
+  font-size:17px; color:var(--ink-soft); letter-spacing:.06em; font-variant-numeric:tabular-nums; z-index:2;
+}
+
+.slide-title{ font-size:var(--fs-title); font-weight:800; line-height:1.2; letter-spacing:-.01em; margin-top:46px; }
+.slide-title .hl{ color:var(--brand); }
+.slide-title .hl2{ color:var(--gold); }
+.title-underline{ width:92px; height:6px; border-radius:3px; margin-top:22px; background:linear-gradient(90deg,var(--brand),var(--brand-2)); }
+.body{ margin-top:50px; flex:1; min-height:0; display:flex; flex-direction:column; }
+.body.center{ justify-content:center; }
+
+.r{ opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.75,.3,1); }
+.slide.active .r{ opacity:1; transform:none; }
+
+.slide[data-anim="fade"]{ transition:opacity .55s ease; }
+.slide[data-anim="slide"],.slide:not([data-anim]){ transform:translateX(46px); transition:opacity .55s ease, transform .55s cubic-bezier(.2,.75,.3,1); }
+.slide[data-anim="slide"].active,.slide:not([data-anim]).active{ transform:translateX(0); }
+.slide[data-anim="slide"].leaving,.slide:not([data-anim]).leaving{ transform:translateX(-46px); }
+.slide[data-anim="up"]{ transform:translateY(52px); transition:opacity .55s ease, transform .55s cubic-bezier(.2,.75,.3,1); }
+.slide[data-anim="up"].active{ transform:translateY(0); }
+.slide[data-anim="zoom"]{ transform:scale(.93); transition:opacity .55s ease, transform .55s cubic-bezier(.2,.75,.3,1); }
+.slide[data-anim="zoom"].active{ transform:scale(1); }
+
+/* ================= 组件 ================= */
+.list{ list-style:none; display:flex; flex-direction:column; gap:30px; }
+.list li{ font-size:var(--fs-body); line-height:1.55; display:flex; gap:20px; align-items:flex-start; }
+.list li::before{ content:""; flex:none; margin-top:14px; width:13px; height:13px; border-radius:4px; background:var(--brand); transform:rotate(45deg); }
+.list li b{ color:var(--ink); }
+.list li .muted{ color:var(--ink-soft); font-size:var(--fs-small); display:block; margin-top:6px; line-height:1.5; }
+
+/* 带编号要点（顶部对齐，间距加大） */
+.steps{ list-style:none; display:flex; flex-direction:column; gap:36px; }
+.steps li{ display:flex; gap:28px; align-items:flex-start; font-size:var(--fs-body); }
+.steps .n{ flex:none; width:58px; height:58px; border-radius:16px; display:grid; place-items:center; font-weight:800; font-size:27px; color:var(--brand); background:rgba(58,117,196,.1); border:2px solid rgba(58,117,196,.22); }
+.steps li .tx{ padding-top:4px; }
+.steps li b{ display:block; margin-bottom:6px; font-size:32px; }
+.steps li .muted{ color:var(--ink-soft); font-size:var(--fs-small); line-height:1.5; }
+
+/* 卡片网格 */
+.grid{ display:grid; gap:30px; }
+.grid.g3{ grid-template-columns:repeat(3,1fr); }
+.card{ background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:38px 34px; display:flex; flex-direction:column; gap:16px; box-shadow:0 10px 30px rgba(30,50,45,.06); }
+.card.tc{ text-align:center; align-items:center; }
+.card .ic{ font-size:46px; }
+.card h3{ font-size:29px; }
+.card p{ font-size:22px; color:var(--ink-soft); line-height:1.55; }
+
+/* 两栏 */
+.cols{ display:grid; grid-template-columns:1fr 1fr; gap:64px; flex:1; align-items:center; }
+.cols.wide-left{ grid-template-columns:1.12fr .88fr; }
+
+/* 图片 */
+.ph{ width:100%; height:100%; min-height:300px; border-radius:var(--radius); background:repeating-linear-gradient(45deg,#eee7d7 0 20px,#e6ddca 20px 40px); border:2px dashed #cdc0a6; color:#a8997f; display:grid; place-items:center; font-size:21px; text-align:center; line-height:1.5; }
+img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius); display:block; box-shadow:0 14px 36px rgba(30,50,45,.16); }
+.fig-wrap{ height:100%; }
+.caption{ font-size:var(--fs-small); color:var(--ink-soft); line-height:1.55; }
+
+/* 正误对比（顶部对齐） */
+.vs{ display:grid; grid-template-columns:1fr 1fr; gap:34px; flex:1; align-items:stretch; }
+.say{ border-radius:var(--radius); padding:40px 38px; display:flex; flex-direction:column; justify-content:flex-start; gap:18px; }
+.say .tag{ font-size:21px; font-weight:800; letter-spacing:.03em; display:inline-flex; align-items:center; gap:10px; }
+.say .txt{ font-size:32px; line-height:1.45; font-weight:700; }
+.say .note{ font-size:20px; color:var(--ink-soft); line-height:1.55; margin-top:auto; }
+.say.bad{ background:var(--bad-bg); border:1.5px solid var(--bad-bd); }
+.say.bad .tag{ color:var(--bad); }
+.say.good{ background:var(--good-bg); border:1.5px solid var(--good-bd); }
+.say.good .tag{ color:var(--good); }
+
+/* 一句话替换（技巧四） */
+.swap{ display:flex; align-items:center; justify-content:center; gap:30px; }
+.pill{ flex:1; max-width:440px; padding:32px 34px; border-radius:18px; font-size:29px; font-weight:700; text-align:center; line-height:1.4; }
+.pill.from{ background:#efe9dd; color:var(--ink-soft); border:1.5px solid var(--line); text-decoration:line-through; text-decoration-color:#c7b79c; }
+.pill.to{ background:var(--good-bg); color:var(--good); border:1.5px solid var(--good-bd); }
+.swap .arrow{ flex:none; font-size:44px; color:var(--brand); }
+
+/* 大号金句 */
+.quote{ display:flex; flex-direction:column; justify-content:center; flex:1; }
+.quote .mark{ font-size:130px; color:var(--brand); line-height:.55; font-family:var(--serif); }
+.quote p{ font-size:50px; font-weight:700; line-height:1.35; max-width:17em; margin-top:10px; }
+.quote .who{ font-size:25px; color:var(--ink-soft); margin-top:34px; line-height:1.5; }
+
+/* 书籍名片 */
+.bookcard{ display:grid; grid-template-columns:.8fr 1.2fr; gap:72px; flex:1; align-items:center; }
+.book-slot{ display:flex; justify-content:center; }
+/* 书籍封面照片占位：把 .book-ph 整块换成 <img class="fig" src="..."> 即可 */
+.book-ph{ width:300px; aspect-ratio:3/4.1; border-radius:6px; background:repeating-linear-gradient(45deg,#eee7d7 0 20px,#e6ddca 20px 40px); border:2px dashed #cdc0a6; color:#a2947b; display:grid; place-content:center; place-items:center; text-align:center; font-size:20px; line-height:1.5; gap:10px; box-shadow:0 20px 44px rgba(40,50,70,.14); }
+.book-ph small{ font-size:14px; color:#b6a98f; }
+.book{ position:relative; width:300px; aspect-ratio:3/4.1; background:linear-gradient(160deg,#245a55 0%,#2b6c66 45%,#3f9a8f 100%); color:#fff; border-radius:5px 9px 9px 5px; box-shadow:0 26px 54px rgba(15,45,40,.42); padding:46px 34px; display:flex; flex-direction:column; justify-content:space-between; }
+.book::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:8px; border-radius:5px 0 0 5px; background:rgba(0,0,0,.16); }
+.book::after{ content:""; position:absolute; inset:16px; border:1.5px solid rgba(255,255,255,.26); border-radius:3px; pointer-events:none; }
+.book .bk-cat{ font-size:14px; letter-spacing:.24em; opacity:.85; }
+.book .bk-title{ font-size:46px; font-weight:800; line-height:1.12; }
+.book .bk-en{ font-family:var(--serif); font-style:italic; font-size:15px; opacity:.72; margin-top:12px; }
+.book .bk-au{ font-size:15px; opacity:.85; line-height:1.7; }
+.bookinfo{ display:flex; flex-direction:column; gap:24px; }
+.bookinfo .row{ display:flex; gap:24px; align-items:baseline; border-bottom:1px solid var(--line); padding-bottom:20px; }
+.bookinfo .k{ flex:none; width:96px; font-size:22px; color:var(--brand); font-weight:700; }
+.bookinfo .v{ font-size:26px; line-height:1.5; }
+.bookinfo .v small{ display:block; font-size:20px; color:var(--ink-soft); margin-top:6px; line-height:1.5; }
+
+/* 场景问句 */
+.asks{ list-style:none; display:flex; flex-direction:column; gap:26px; }
+.asks li{ font-size:31px; font-weight:600; line-height:1.5; padding:28px 36px; border-radius:16px; background:var(--surface-2); border:1px solid var(--line); border-left:6px solid var(--brand); box-shadow:0 8px 24px rgba(30,50,45,.05); }
+.asks li em{ color:var(--brand); font-family:var(--serif); font-weight:700; font-style:normal; margin-right:8px; }
+
+/* 行动清单 takeaway */
+.take{ list-style:none; display:flex; flex-direction:column; gap:20px; }
+.take li{ display:flex; gap:30px; align-items:center; background:var(--surface-2); border:1px solid var(--line); border-left:6px solid var(--brand); border-radius:16px; padding:20px 38px; box-shadow:0 8px 24px rgba(30,50,45,.05); }
+.take .bn{ flex:none; width:66px; font-size:52px; font-weight:800; line-height:1; color:rgba(58,117,196,.26); font-variant-numeric:tabular-nums; }
+.take .tt{ display:flex; flex-direction:column; }
+.take .tt .ti{ font-size:29px; font-weight:700; line-height:1.3; }
+.take .tt small{ font-size:20px; color:var(--ink-soft); font-weight:400; margin-top:4px; line-height:1.5; }
+
+/* ================= 特殊页 ================= */
+.cover{ background:linear-gradient(140deg,#1f3a66 0%,#2d5c9e 52%,#3a75c4 100%); color:#fff; justify-content:center; overflow:hidden; }
+.cover::before{ content:""; position:absolute; right:-120px; top:-120px; width:540px; height:540px; border-radius:50%; background:radial-gradient(circle at 32% 32%,rgba(200,151,63,.35),transparent 68%); }
+.cover .kicker{ font-size:21px; letter-spacing:.32em; opacity:.85; position:relative; }
+.cover h1{ font-size:86px; font-weight:800; line-height:1.12; margin-top:26px; letter-spacing:-.02em; position:relative; }
+.cover .lead{ font-size:28px; opacity:.92; margin-top:30px; max-width:25em; line-height:1.6; position:relative; }
+.cover .meta{ display:flex; gap:56px; margin-top:72px; font-size:24px; position:relative; }
+.cover .meta .k{ opacity:.65; font-size:17px; letter-spacing:.06em; margin-bottom:5px; }
+.cover::after{ color:rgba(255,255,255,.6); }
+
+.toc h2{ font-size:50px; font-weight:800; }
+.toc h2 em{ font-style:normal; color:var(--ink-soft); font-weight:400; font-size:.46em; margin-left:14px; }
+.toc ol{ list-style:none; margin-top:48px; display:flex; flex-direction:column; gap:26px; counter-reset:t; }
+.toc li{ counter-increment:t; display:flex; align-items:baseline; gap:30px; font-size:37px; font-weight:700; padding-bottom:24px; border-bottom:1px solid var(--line); }
+.toc li::before{ content:counter(t,decimal-leading-zero); font-size:30px; color:var(--brand); font-weight:800; width:1.6em; }
+.toc li .desc{ font-size:22px; color:var(--ink-soft); font-weight:400; margin-left:auto; }
+
+/* 章节封面（浅色、数字做背景水印、布局清爽） */
+.chapter-cover{ background:linear-gradient(135deg,#f4efe4 0%,#e8eef7 100%); color:var(--ink); justify-content:center; overflow:hidden; }
+.chapter-cover .cwater{ position:absolute; right:20px; top:50%; transform:translateY(-50%); font-size:400px; font-weight:800; line-height:.8; color:rgba(58,117,196,.10); letter-spacing:-.04em; user-select:none; pointer-events:none; }
+.chapter-cover .clabel{ font-size:21px; letter-spacing:.3em; color:var(--brand); font-weight:700; position:relative; }
+.chapter-cover h2{ font-size:66px; font-weight:800; line-height:1.16; margin-top:22px; max-width:15em; position:relative; }
+.chapter-cover .cbar{ width:84px; height:6px; border-radius:3px; background:linear-gradient(90deg,var(--brand),var(--gold)); margin-top:28px; position:relative; }
+.chapter-cover .cdesc{ font-size:26px; color:var(--ink-soft); margin-top:26px; max-width:24em; line-height:1.55; position:relative; }
+.chapter-cover::after{ color:var(--ink-soft); }
+
+.thanks{ background:linear-gradient(140deg,#1f3a66 0%,#2d5c9e 58%,#e0a63c 150%); color:#fff; align-items:center; justify-content:center; text-align:center; }
+.thanks h1{ font-size:90px; font-weight:800; }
+.thanks p{ font-size:29px; opacity:.92; margin-top:26px; line-height:1.6; max-width:24em; }
+.thanks .small{ font-size:22px; opacity:.72; margin-top:44px; }
+
+/* ================= 控制条 ================= */
+#bar{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:50; display:flex; align-items:center; gap:12px; background:rgba(20,26,38,.5); backdrop-filter:blur(10px); padding:6px 12px; border-radius:999px; color:#fff; font-family:var(--font); box-shadow:0 6px 20px rgba(0,0,0,.28); opacity:.62; transition:opacity .25s; }
+#bar:hover{ opacity:1; }
+#bar button{ width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:rgba(255,255,255,.14); color:#fff; font-size:15px; line-height:1; transition:background .2s; }
+#bar button:hover{ background:rgba(255,255,255,.3); }
+#bar .track{ width:120px; height:4px; border-radius:2px; background:rgba(255,255,255,.2); overflow:hidden; }
+#bar .fill{ height:100%; width:0; background:linear-gradient(90deg,var(--brand-2),var(--gold)); border-radius:2px; transition:width .4s ease; }
+#bar .count{ font-size:13px; min-width:44px; text-align:center; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+#hint{ position:fixed; bottom:56px; left:50%; transform:translateX(-50%); z-index:40; color:rgba(255,255,255,.5); font-size:13px; font-family:var(--font); pointer-events:none; transition:opacity .6s; text-shadow:0 1px 6px rgba(0,0,0,.4); }
+@media (max-width:480px){ #bar .track{ width:70px; } }
+</style>
+
+<div id="stage">
+  <div id="deck">
+
+    <!-- ① 封面 -->
+    <section class="slide cover" data-anim="fade">
+      <div class="kicker r">读书分享 · READING SHARE</div>
+      <h1 class="r">越重要的对话<br>越容易说砸</h1>
+      <p class="lead r">高风险、高情绪的对话，往往最能决定一段关系的走向。</p>
+      <div class="meta">
+        <div class="r"><div class="k">分享人</div>夏雨</div>
+        <div class="r"><div class="k">时间</div>2026-07-09</div>
+      </div>
+    </section>
+
+    <!-- ② 目录（精简） -->
+    <section class="slide toc" data-anim="up">
+      <h2 class="r">目录<em>Contents</em></h2>
+      <ol>
+        <li class="r">沟通的困境 <span class="desc">我们为何越来越不会说话</span></li>
+        <li class="r">认识《关键对话》 <span class="desc">这本书在讲什么</span></li>
+        <li class="r">四个沟通技巧 <span class="desc">回去就能用</span></li>
+        <li class="r">读书与行动 <span class="desc">把书读进去、用起来</span></li>
+      </ol>
+    </section>
+
+    <!-- ③ 第一章 封面 -->
+    <section class="slide chapter-cover" data-anim="zoom">
+      <div class="cwater">01</div>
+      <div class="clabel r">第一章 · CHAPTER 01</div>
+      <h2 class="r">我们越来越不会说话了</h2>
+      <div class="cbar r"></div>
+      <p class="cdesc r">先看清，我们正身处怎样的沟通困境。</p>
+    </section>
+
+    <!-- ④ 你有没有这些时刻 -->
+    <section class="slide" data-anim="slide" data-chapter="第一章 · 沟通的困境">
+      <h1 class="slide-title r">你有没有过<span class="hl">这样的时刻</span>？</h1>
+      <div class="title-underline r"></div>
+      <div class="body center">
+        <ul class="asks">
+          <li class="r"><em>“</em>为一件小事和家人吵起来，事后又特别后悔。</li>
+          <li class="r"><em>“</em>想给同事、朋友提个意见，话到嘴边，又咽了回去。</li>
+          <li class="r"><em>“</em>越想解释，对方越误会，最后干脆不说了。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ⑤ 碎片化改变我们 -->
+    <section class="slide" data-anim="up" data-chapter="第一章 · 沟通的困境">
+      <h1 class="slide-title r">被<span class="hl">碎片化</span>悄悄改变的我们</h1>
+      <div class="title-underline r"></div>
+      <div class="body center">
+        <div class="grid g3">
+          <div class="card tc r"><div class="ic">📱</div><h3>刷不停的短视频</h3><p>习惯了 15 秒的即时爽感，越来越没耐心听完一段完整的话。</p></div>
+          <div class="card tc r"><div class="ic">✍️</div><h3>提笔忘字</h3><p>打字全靠拼音联想，离开输入法，很多常用字突然写不出来。</p></div>
+          <div class="card tc r"><div class="ic">💬</div><h3>越来越浅的表达</h3><p>“哈哈哈”和表情包，正替代我们说清楚真实想法的能力。</p></div>
+        </div>
+        <p class="caption r" style="text-align:center;margin-top:34px">刷得越多，读得越少；说得越快，沟通越浅——而真正拉开差距的，往往是那几场“关键对话”。</p>
+      </div>
+    </section>
+
+    <!-- ⑥ 第二章 封面 -->
+    <section class="slide chapter-cover" data-anim="zoom">
+      <div class="cwater">02</div>
+      <div class="clabel r">第二章 · CHAPTER 02</div>
+      <h2 class="r">认识《关键对话》</h2>
+      <div class="cbar r"></div>
+      <p class="cdesc r">一本沟通圣经，专治高难度对话。</p>
+    </section>
+
+    <!-- ⑦ 书籍名片 -->
+    <section class="slide" data-anim="slide" data-chapter="第二章 · 这本书在讲什么">
+      <h1 class="slide-title r">先给这本书<span class="hl">发张名片</span></h1>
+      <div class="title-underline r"></div>
+      <div class="body">
+        <div class="bookcard">
+          <div class="book-slot r">
+            <img src="images/cover.jpg" alt="《关键对话》封面"
+                 style="width:340px;height:auto;border-radius:8px;box-shadow:0 20px 44px rgba(40,50,70,.18);">
+          </div>
+          <div class="bookinfo">
+            <div class="row r"><div class="k">书名</div><div class="v">关键对话：如何高效能沟通</div></div>
+            <div class="row r"><div class="k">作者</div><div class="v">[美] 科里·帕特森 等四位<small>沟通与组织行为研究者，深耕影响力领域二十余年</small></div></div>
+            <div class="row r"><div class="k">一句话</div><div class="v">教你在“高风险、情绪化、意见不合”时，依然把话说好。</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑧ 什么是关键对话（三特征） -->
+    <section class="slide" data-anim="up" data-chapter="第二章 · 这本书在讲什么">
+      <h1 class="slide-title r">什么才算<span class="hl">“关键”对话</span>？</h1>
+      <div class="title-underline r"></div>
+      <div class="body center">
+        <div class="grid g3">
+          <div class="card tc r"><div class="ic">⚖️</div><h3>观点不同</h3><p>双方看法相左，谁也说服不了谁。</p></div>
+          <div class="card tc r"><div class="ic">🔥</div><h3>情绪激烈</h3><p>一开口就上头，容易带情绪。</p></div>
+          <div class="card tc r"><div class="ic">🎯</div><h3>事关重大</h3><p>结果影响关系、利益或前途。</p></div>
+        </div>
+        <p class="caption r" style="text-align:center;margin-top:34px">三者同时满足，就是一场关键对话：谈加薪、和伴侣讨论分歧、指出朋友的问题……</p>
+      </div>
+    </section>
+
+    <!-- ⑨ 第三章 封面 -->
+    <section class="slide chapter-cover" data-anim="zoom">
+      <div class="cwater">03</div>
+      <div class="clabel r">第三章 · CHAPTER 03</div>
+      <h2 class="r">四个能立刻用上的技巧</h2>
+      <div class="cbar r"></div>
+      <p class="cdesc r">四个即学即用的沟通方法。</p>
+    </section>
+
+    <!-- ⑩ 技巧一（左文右图） -->
+    <section class="slide" data-anim="slide" data-chapter="第三章 · 沟通技巧">
+      <h1 class="slide-title r">技巧一 · 先想清楚<span class="hl">“我到底要什么”</span></h1>
+      <div class="title-underline r"></div>
+      <div class="body">
+        <div class="cols wide-left">
+          <ul class="list r">
+            <li><span><b>对话容易跑偏成“争输赢”</b><span class="muted">吵着吵着，忘了最初是想解决问题。</span></span></li>
+            <li><span><b>开口前先问自己</b><span class="muted">我希望为自己、为对方、为这段关系，达成什么？</span></span></li>
+            <li><span><b>目标对了，语气自然就软了</b><span class="muted">你要的不是“赢”，而是把事办成、把关系留住。</span></span></li>
+          </ul>
+          <div class="fig-wrap r">
+            <img class="fig" src="images/tip1.jpg" alt="先问自己：我到底要什么"
+                 style="box-shadow:none;border-radius:0;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑪ 技巧二 安全感（对比·顶部对齐） -->
+    <section class="slide" data-anim="up" data-chapter="第三章 · 沟通技巧">
+      <h1 class="slide-title r">技巧二 · 让对方<span class="hl">敢说真话</span></h1>
+      <div class="title-underline r"></div>
+      <div class="body">
+        <p class="caption r" style="margin:0 0 24px">人一旦感到不安全，要么<b>沉默</b>（不说了），要么<b>爆发</b>（吵起来）。先给足安全感。</p>
+        <div class="vs">
+          <div class="say bad r">
+            <div class="tag">✕ 别这么说</div>
+            <div class="txt">“你从来都不听我说话！”</div>
+            <div class="note">带着指责和“从来”，对方立刻防御、反击。</div>
+          </div>
+          <div class="say good r">
+            <div class="tag">✓ 试试这么说</div>
+            <div class="txt">“我想聊聊，刚才我感觉没被听到。”</div>
+            <div class="note">说自己的感受、不扣帽子，对话还能继续。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑫ 技巧三 事实vs评判（对比·顶部对齐） -->
+    <section class="slide" data-anim="slide" data-chapter="第三章 · 沟通技巧">
+      <h1 class="slide-title r">技巧三 · 说<span class="hl">事实</span>，不说<span class="hl">评判</span></h1>
+      <div class="title-underline r"></div>
+      <div class="body">
+        <p class="caption r" style="margin:0 0 24px">我们常把“我看到的”和“我认为的”混为一谈。事实让人接受，评判让人对抗。</p>
+        <div class="vs">
+          <div class="say bad r">
+            <div class="tag">✕ 评判</div>
+            <div class="txt">“你这人太自私了。”</div>
+            <div class="note">给人贴标签，等于直接开战。</div>
+          </div>
+          <div class="say good r">
+            <div class="tag">✓ 事实</div>
+            <div class="txt">“这周三次聚餐，都是我买的单。”</div>
+            <div class="note">只讲发生了什么，对方无从反驳。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑬ 技巧四 探询（一句话替换，样式换新） -->
+    <section class="slide" data-anim="up" data-chapter="第三章 · 沟通技巧">
+      <h1 class="slide-title r">技巧四 · 多<span class="hl">探询</span>，少<span class="hl">假设</span></h1>
+      <div class="title-underline r"></div>
+      <div class="body center">
+        <div class="swap r">
+          <div class="pill from">“你就是错的。”</div>
+          <div class="arrow">→</div>
+          <div class="pill to">“我很好奇，你是怎么想的？”</div>
+        </div>
+        <ul class="list r" style="margin-top:54px">
+          <li><span>别急着下结论——你以为的“他针对我”，往往只是误会。</span></li>
+          <li><span>用提问代替断言，听懂对方的动机，比赢下对话更重要。</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ⑭ 第四章 封面 -->
+    <section class="slide chapter-cover" data-anim="zoom">
+      <div class="cwater">04</div>
+      <div class="clabel r">第四章 · CHAPTER 04</div>
+      <h2 class="r">读书与行动</h2>
+      <div class="cbar r"></div>
+      <p class="cdesc r">把读到的，变成做到的。</p>
+    </section>
+
+    <!-- ⑮ 金句页（呼应封面，收束全书） -->
+    <section class="slide" data-anim="slide" data-chapter="第四章 · 读书与行动">
+      <div class="body">
+        <div class="quote">
+          <div class="mark r">“</div>
+          <p class="r">我们无法回避那些<span class="hl2">关键对话</span>，<br>能选择的，只是把它谈好，还是谈砸。</p>
+          <div class="who r">——《关键对话》　·　而“谈好”是一种可以刻意练习的能力</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑯ 行动清单 -->
+    <section class="slide" data-anim="up" data-chapter="第四章 · 读书与行动">
+      <h1 class="slide-title r">如果只记住<span class="hl">三句话</span></h1>
+      <div class="title-underline r"></div>
+      <div class="body center">
+        <ul class="take">
+          <li class="r"><span class="bn">01</span><div class="tt"><span class="ti">先处理情绪，再处理事情</span><small>越重要的对话，越要先让彼此有安全感。</small></div></li>
+          <li class="r"><span class="bn">02</span><div class="tt"><span class="ti">说事实，不说评判</span><small>只描述发生了什么，别急着给人下定义。</small></div></li>
+          <li class="r"><span class="bn">03</span><div class="tt"><span class="ti">读完，就去用一次</span><small>找一个真实的对话，试上其中一个技巧。</small></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ⑰ 致谢 -->
+    <section class="slide thanks" data-anim="fade">
+      <h1 class="r">谢谢观看</h1>
+      <p class="r">愿我们都能，把最难开口的话，说到对方心里。</p>
+    </section>
+
+  </div>
+</div>
+
+<div id="bar">
+  <button id="prev" title="上一页 (←)">‹</button>
+  <span class="count"><span id="cur">1</span> / <span id="total">1</span></span>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <button id="next" title="下一页 (→)">›</button>
+</div>
+<div id="hint">点击右侧翻页 · ← → 键切换 · F 全屏</div>
+
+<script>
+(function(){
+  const deck=document.getElementById('deck');
+  const slides=Array.from(deck.querySelectorAll('.slide'));
+  const fill=document.getElementById('fill');
+  const curEl=document.getElementById('cur');
+  const totEl=document.getElementById('total');
+  const hint=document.getElementById('hint');
+  let idx=0;
+  totEl.textContent=slides.length;
+
+  slides.forEach(function(s,i){
+    const ch=s.getAttribute('data-chapter');
+    if(ch){ const t=document.createElement('div'); t.className='chapter-tag'; t.textContent=ch; s.appendChild(t); }
+    s.setAttribute('data-foot',String(i+1).padStart(2,'0'));
+    Array.from(s.querySelectorAll('.r')).forEach(function(el,j){ el.style.transitionDelay=(0.12+j*0.09)+'s'; });
+  });
+
+  function show(n,dir){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    if(n===idx && slides[idx].classList.contains('active')) return;
+    slides.forEach(function(s){ s.classList.remove('active','leaving'); });
+    if(slides[idx] && dir>0) slides[idx].classList.add('leaving');
+    idx=n; void slides[idx].offsetWidth; slides[idx].classList.add('active');
+    curEl.textContent=idx+1;
+    fill.style.width=((idx)/(slides.length-1||1)*100)+'%';
+  }
+  function next(){ show(idx+1,1); }
+  function prev(){ show(idx-1,-1); }
+
+  document.getElementById('next').addEventListener('click',function(e){ e.stopPropagation(); next(); });
+  document.getElementById('prev').addEventListener('click',function(e){ e.stopPropagation(); prev(); });
+
+  document.addEventListener('keydown',function(e){
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){ e.preventDefault(); next(); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ show(0); }
+    else if(e.key==='End'){ show(slides.length-1); }
+    else if(e.key==='f'||e.key==='F'){ toggleFull(); }
+  });
+
+  document.getElementById('stage').addEventListener('click',function(e){
+    if(e.target.closest('a,button,input,textarea')) return;
+    if(e.clientX<window.innerWidth*0.25) prev(); else next();
+  });
+
+  function toggleFull(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); }
+    else{ document.exitFullscreen&&document.exitFullscreen(); }
+  }
+
+  function fit(){ const s=Math.min(window.innerWidth/1280,window.innerHeight/720); deck.style.transform='translate(-50%,-50%) scale('+s+')'; }
+  window.addEventListener('resize',fit);
+
+  const h=parseInt(location.hash.replace('#',''),10);
+  fit();
+  show(Number.isInteger(h)&&h>0?h-1:0);
+  setTimeout(function(){ hint.style.opacity='0'; },3500);
+})();
+</script>
