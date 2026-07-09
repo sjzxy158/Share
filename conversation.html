@@ -31,7 +31,8 @@
   --bad-bg:    #fbeee8;
   --bad-bd:    #f2cebf;
 
-  --pad:       92px;
+  --pad:       88px;    /* 垂直内边距 */
+  --pad-x:     116px;   /* 水平内边距（cover 裁切后两侧仍有余量） */
   --fs-title:  54px;
   --fs-body:   30px;
   --fs-small:  24px;
@@ -47,7 +48,7 @@ body{
   font-family:var(--font); color:var(--ink); overflow:hidden;
 }
 
-#stage{position:fixed; inset:0;}
+#stage{position:fixed; inset:0; transition:background-color .45s ease;}
 #deck{
   position:absolute; top:50%; left:50%; width:1280px; height:720px;
   transform:translate(-50%,-50%); transform-origin:center center;
@@ -56,20 +57,20 @@ body{
 /* ================= 幻灯片通用 ================= */
 .slide{
   position:absolute; inset:0; background:var(--surface);
-  padding:var(--pad);
+  padding:var(--pad) var(--pad-x);
   display:flex; flex-direction:column; overflow:hidden;
   opacity:0; visibility:hidden; pointer-events:none;
 }
 .slide.active{opacity:1; visibility:visible; pointer-events:auto;}
 
 .chapter-tag{
-  position:absolute; top:40px; left:var(--pad);
+  position:absolute; top:40px; left:var(--pad-x);
   font-size:19px; letter-spacing:.05em; color:var(--brand);
   font-weight:700; display:flex; align-items:center; gap:11px; z-index:2;
 }
 .chapter-tag::before{ content:""; width:24px; height:3px; border-radius:2px; background:var(--brand); }
 .slide::after{
-  content:attr(data-foot); position:absolute; top:40px; right:var(--pad);
+  content:attr(data-foot); position:absolute; top:40px; right:var(--pad-x);
   font-size:17px; color:var(--ink-soft); letter-spacing:.06em; font-variant-numeric:tabular-nums; z-index:2;
 }
 
@@ -77,6 +78,15 @@ body{
 .slide-title .hl{ color:var(--brand); }
 .slide-title .hl2{ color:var(--gold); }
 .title-underline{ width:92px; height:6px; border-radius:3px; margin-top:22px; background:linear-gradient(90deg,var(--brand),var(--brand-2)); }
+/* 概念标题下的说明副标（第三章技巧页用） */
+.slide-sub{ margin-top:14px; font-size:23px; color:var(--ink-soft); font-weight:600; }
+.slide-sub .en{ color:var(--brand); font-family:var(--serif); font-style:italic; font-weight:700; margin-right:12px; }
+.slide-sub .en::after{ content:"·"; color:var(--ink-soft); font-style:normal; font-weight:400; margin-left:12px; }
+/* 技巧页有了概念标题+副标，收紧头部、去掉多余的下划线，给正文腾空间 */
+.slide[data-chapter="第三章 · 沟通技巧"] .slide-title{ margin-top:24px; }
+.slide[data-chapter="第三章 · 沟通技巧"] .slide-sub{ margin-top:12px; }
+.slide[data-chapter="第三章 · 沟通技巧"] .title-underline{ display:none; }
+.slide[data-chapter="第三章 · 沟通技巧"] .body{ margin-top:20px; }
 .body{ margin-top:50px; flex:1; min-height:0; display:flex; flex-direction:column; }
 .body.center{ justify-content:center; }
 
@@ -128,21 +138,21 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
 
 /* 正误对比（顶部对齐） */
 .vs{ display:grid; grid-template-columns:1fr 1fr; gap:34px; flex:1; align-items:stretch; }
-.say{ border-radius:var(--radius); padding:40px 38px; display:flex; flex-direction:column; justify-content:flex-start; gap:18px; }
+.say{ border-radius:var(--radius); padding:40px 38px; display:flex; flex-direction:column; justify-content:flex-start; gap:20px; }
 .say .tag{ font-size:21px; font-weight:800; letter-spacing:.03em; display:inline-flex; align-items:center; gap:10px; }
-.say .txt{ font-size:32px; line-height:1.45; font-weight:700; }
-.say .note{ font-size:20px; color:var(--ink-soft); line-height:1.55; margin-top:auto; }
+.say .txt{ font-size:32px; line-height:1.45; font-weight:700; min-height:2.9em; }
+.say .note{ font-size:20px; color:var(--ink-soft); line-height:1.55; margin-top:4px; }
 .say.bad{ background:var(--bad-bg); border:1.5px solid var(--bad-bd); }
 .say.bad .tag{ color:var(--bad); }
 .say.good{ background:var(--good-bg); border:1.5px solid var(--good-bd); }
 .say.good .tag{ color:var(--good); }
 
 /* 一句话替换（技巧四） */
-.swap{ display:flex; align-items:center; justify-content:center; gap:30px; }
-.pill{ flex:1; max-width:440px; padding:32px 34px; border-radius:18px; font-size:29px; font-weight:700; text-align:center; line-height:1.4; }
+.swap{ display:flex; align-items:stretch; justify-content:center; gap:30px; }
+.pill{ flex:1; max-width:440px; padding:28px 34px; border-radius:18px; font-size:29px; font-weight:700; text-align:center; line-height:1.4; display:flex; align-items:center; justify-content:center; }
 .pill.from{ background:#efe9dd; color:var(--ink-soft); border:1.5px solid var(--line); text-decoration:line-through; text-decoration-color:#c7b79c; }
 .pill.to{ background:var(--good-bg); color:var(--good); border:1.5px solid var(--good-bd); }
-.swap .arrow{ flex:none; font-size:44px; color:var(--brand); }
+.swap .arrow{ flex:none; align-self:center; font-size:44px; color:var(--brand); }
 
 /* 大号金句 */
 .quote{ display:flex; flex-direction:column; justify-content:center; flex:1; }
@@ -232,7 +242,7 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
     <section class="slide cover" data-anim="fade">
       <div class="kicker r">读书分享 · READING SHARE</div>
       <h1 class="r">越重要的对话<br>越容易说砸</h1>
-      <p class="lead r">高风险、高情绪的对话，往往最能决定一段关系的走向。</p>
+      <p class="lead r">读《关键对话》· 把最难开口的话，说到对方心里</p>
       <div class="meta">
         <div class="r"><div class="k">分享人</div>夏雨</div>
         <div class="r"><div class="k">时间</div>2026-07-09</div>
@@ -282,7 +292,7 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
           <div class="card tc r"><div class="ic">✍️</div><h3>提笔忘字</h3><p>打字全靠拼音联想，离开输入法，很多常用字突然写不出来。</p></div>
           <div class="card tc r"><div class="ic">💬</div><h3>越来越浅的表达</h3><p>“哈哈哈”和表情包，正替代我们说清楚真实想法的能力。</p></div>
         </div>
-        <p class="caption r" style="text-align:center;margin-top:34px">刷得越多，读得越少；说得越快，沟通越浅——而真正拉开差距的，往往是那几场“关键对话”。</p>
+        <p class="caption r" style="text-align:center;margin-top:34px">我们越来越会“刷”，却越来越不会“谈”——可真正影响关系和人生的，恰恰是那几场“关键对话”。</p>
       </div>
     </section>
 
@@ -324,7 +334,7 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
           <div class="card tc r"><div class="ic">🔥</div><h3>情绪激烈</h3><p>一开口就上头，容易带情绪。</p></div>
           <div class="card tc r"><div class="ic">🎯</div><h3>事关重大</h3><p>结果影响关系、利益或前途。</p></div>
         </div>
-        <p class="caption r" style="text-align:center;margin-top:34px">三者同时满足，就是一场关键对话：谈加薪、和伴侣讨论分歧、指出朋友的问题……</p>
+        <p class="caption r" style="text-align:center;margin-top:34px">当这几点交织在一起，一次普通交流就变成了“关键对话”——谈加薪、和伴侣商量一笔大开销、给好朋友提一个难听却重要的建议……越是这种时刻，越考验我们怎么说。</p>
       </div>
     </section>
 
@@ -334,19 +344,20 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
       <div class="clabel r">第三章 · CHAPTER 03</div>
       <h2 class="r">四个能立刻用上的技巧</h2>
       <div class="cbar r"></div>
-      <p class="cdesc r">四个即学即用的沟通方法。</p>
+      <p class="cdesc r">直接取自书中的四个核心步骤，即学即用。</p>
     </section>
 
     <!-- ⑩ 技巧一（左文右图） -->
     <section class="slide" data-anim="slide" data-chapter="第三章 · 沟通技巧">
-      <h1 class="slide-title r">技巧一 · 先想清楚<span class="hl">“我到底要什么”</span></h1>
+      <h1 class="slide-title r">技巧一 · 从<span class="hl">“心”</span>开始</h1>
+      <div class="slide-sub r"><span class="en">Start with Heart</span>先想清楚：我到底想要什么</div>
       <div class="title-underline r"></div>
       <div class="body">
         <div class="cols wide-left">
           <ul class="list r">
             <li><span><b>对话容易跑偏成“争输赢”</b><span class="muted">吵着吵着，忘了最初是想解决问题。</span></span></li>
             <li><span><b>开口前先问自己</b><span class="muted">我希望为自己、为对方、为这段关系，达成什么？</span></span></li>
-            <li><span><b>目标对了，语气自然就软了</b><span class="muted">你要的不是“赢”，而是把事办成、把关系留住。</span></span></li>
+            <li><span><b>目标对了，语气自然就软</b><span class="muted">你要的是“赢”，还是“把事办成”？想清楚就不较劲了。</span></span></li>
           </ul>
           <div class="fig-wrap r">
             <img class="fig" src="images/tip1.jpg" alt="先问自己：我到底要什么"
@@ -358,7 +369,8 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
 
     <!-- ⑪ 技巧二 安全感（对比·顶部对齐） -->
     <section class="slide" data-anim="up" data-chapter="第三章 · 沟通技巧">
-      <h1 class="slide-title r">技巧二 · 让对方<span class="hl">敢说真话</span></h1>
+      <h1 class="slide-title r">技巧二 · <span class="hl">营造安全感</span></h1>
+      <div class="slide-sub r"><span class="en">Make It Safe</span>先让对方敢说真话</div>
       <div class="title-underline r"></div>
       <div class="body">
         <p class="caption r" style="margin:0 0 24px">人一旦感到不安全，要么<b>沉默</b>（不说了），要么<b>爆发</b>（吵起来）。先给足安全感。</p>
@@ -370,8 +382,8 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
           </div>
           <div class="say good r">
             <div class="tag">✓ 试试这么说</div>
-            <div class="txt">“我想聊聊，刚才我感觉没被听到。”</div>
-            <div class="note">说自己的感受、不扣帽子，对话还能继续。</div>
+            <div class="txt">“我想聊聊，刚才说话时我感觉你有点没在听。”</div>
+            <div class="note">只说自己的感受、不扣“从来”这种帽子，对话还能继续。</div>
           </div>
         </div>
       </div>
@@ -379,7 +391,8 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
 
     <!-- ⑫ 技巧三 事实vs评判（对比·顶部对齐） -->
     <section class="slide" data-anim="slide" data-chapter="第三章 · 沟通技巧">
-      <h1 class="slide-title r">技巧三 · 说<span class="hl">事实</span>，不说<span class="hl">评判</span></h1>
+      <h1 class="slide-title r">技巧三 · <span class="hl">区分事实与想法</span></h1>
+      <div class="slide-sub r"><span class="en">Master My Stories</span>说事实，不说评判</div>
       <div class="title-underline r"></div>
       <div class="body">
         <p class="caption r" style="margin:0 0 24px">我们常把“我看到的”和“我认为的”混为一谈。事实让人接受，评判让人对抗。</p>
@@ -400,7 +413,8 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
 
     <!-- ⑬ 技巧四 探询（一句话替换，样式换新） -->
     <section class="slide" data-anim="up" data-chapter="第三章 · 沟通技巧">
-      <h1 class="slide-title r">技巧四 · 多<span class="hl">探询</span>，少<span class="hl">假设</span></h1>
+      <h1 class="slide-title r">技巧四 · <span class="hl">了解对方的想法</span></h1>
+      <div class="slide-sub r"><span class="en">Explore Others’ Paths</span>多探询，少假设</div>
       <div class="title-underline r"></div>
       <div class="body center">
         <div class="swap r">
@@ -441,9 +455,9 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
       <div class="title-underline r"></div>
       <div class="body center">
         <ul class="take">
-          <li class="r"><span class="bn">01</span><div class="tt"><span class="ti">先处理情绪，再处理事情</span><small>越重要的对话，越要先让彼此有安全感。</small></div></li>
-          <li class="r"><span class="bn">02</span><div class="tt"><span class="ti">说事实，不说评判</span><small>只描述发生了什么，别急着给人下定义。</small></div></li>
-          <li class="r"><span class="bn">03</span><div class="tt"><span class="ti">读完，就去用一次</span><small>找一个真实的对话，试上其中一个技巧。</small></div></li>
+          <li class="r"><span class="bn">01</span><div class="tt"><span class="ti">先处理情绪，再处理事情</span><small>先说“别急，我们好好聊聊”，而不是上来就讲道理。</small></div></li>
+          <li class="r"><span class="bn">02</span><div class="tt"><span class="ti">说事实，不说评判</span><small>说“这周迟到了三次”，而不是“你这人太不靠谱”。</small></div></li>
+          <li class="r"><span class="bn">03</span><div class="tt"><span class="ti">读完，就去用一次</span><small>今晚就挑一次对话，试着先问问对方怎么想。</small></div></li>
         </ul>
       </div>
     </section>
@@ -468,6 +482,7 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
 <script>
 (function(){
   const deck=document.getElementById('deck');
+  const stage=document.getElementById('stage');
   const slides=Array.from(deck.querySelectorAll('.slide'));
   const fill=document.getElementById('fill');
   const curEl=document.getElementById('cur');
@@ -491,6 +506,10 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
     idx=n; void slides[idx].offsetWidth; slides[idx].classList.add('active');
     curEl.textContent=idx+1;
     fill.style.width=((idx)/(slides.length-1||1)*100)+'%';
+    // 让整屏背景跟随当前页，消除全屏时的上下黑边
+    const cs=getComputedStyle(slides[idx]);
+    stage.style.backgroundColor=cs.backgroundColor;
+    stage.style.backgroundImage=cs.backgroundImage;
   }
   function next(){ show(idx+1,1); }
   function prev(){ show(idx-1,-1); }
@@ -516,7 +535,7 @@ img.fig{ width:100%; height:100%; object-fit:cover; border-radius:var(--radius);
     else{ document.exitFullscreen&&document.exitFullscreen(); }
   }
 
-  function fit(){ const s=Math.min(window.innerWidth/1280,window.innerHeight/720); deck.style.transform='translate(-50%,-50%) scale('+s+')'; }
+  function fit(){ const s=Math.max(window.innerWidth/1280,window.innerHeight/720); deck.style.transform='translate(-50%,-50%) scale('+s+')'; }
   window.addEventListener('resize',fit);
 
   const h=parseInt(location.hash.replace('#',''),10);
